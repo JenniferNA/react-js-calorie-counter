@@ -2,33 +2,44 @@ import React, { useState,useEffect } from 'react';
 import './App.css';
 
 function App() {
-  const [meals, setMeals] = useState([]);
+
+  //set meals from localStorage or []
+  const [meals, setMeals] = useState(() => {
+    const localData = localStorage.getItem('meals');
+    return localData ? JSON.parse(localData) : [];
+  });
   const [name, setName] = useState('');
   const [calories, setCalories] = useState();
-  const [totalCalories, setTotalCalories] = useState(0);
+  //set totalCalories from meals or 0
+  const [totalCalories, setTotalCalories] =useState(() => {
+    return countTotalCalories() ? countTotalCalories() : 0;
+  });
 
   //currently only adding items
   const handleSubmit = (e) => {
-
+    //dont refresh page
     e.preventDefault();
-
     setMeals([...meals,{id:meals.length+1,name:name,calories:calories}]);
-    updateCalories(calories);
     
     //clear inputs
     setName('');
     setCalories('');
-
-
   }
 
-  function updateCalories(c) {
-    setTotalCalories(totalCalories + c);
+  function countTotalCalories(){
+    let count = 0;
+    for(let i = 0; i < meals.length; i++)
+      count += meals[i].calories;
+    return count;
   }
 
-  //store meals to localstorage when meals is altered  
+  //store meals to localstorage and update totalCalories when meals is altered  
   useEffect(() => {
-    localStorage.setItem("meals", JSON.stringify(meals));
+    let storeMeals = () => localStorage.setItem("meals", JSON.stringify(meals));
+    let updateCalories = (c) => setTotalCalories(countTotalCalories());
+
+    storeMeals();
+    updateCalories();
   }, [meals]);
 
 
