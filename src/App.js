@@ -76,6 +76,12 @@ function App() {
     //dont refresh page
     e.preventDefault();
 
+    if(e.target.id == "clr-btn"){
+      //delete all
+      console.log("Clear Items");
+      StorageCtrl.clearItems();
+    }
+
     if(name && calories && calories !== NaN){
       if(e.target.id == "add-btn"){
         //add item
@@ -83,26 +89,24 @@ function App() {
       }
       else if(e.target.id == "edit-btn"){
         //update item
-        console.log("Edit Item"); 
         StorageCtrl.updateItem(); 
         toggleButtonPanel();
       }
       else if(e.target.id == "delete-btn"){
         //delete item
-        console.log("Delete Item"); 
         StorageCtrl.deleteItem();
         toggleButtonPanel();
+      }
+      else if(e.target.id == "back-btn"){
+        //delete item
+        toggleButtonPanel();
+        //set id since meals isn't being altered
+        setId(meals.length);
       }
 
     //clear inputs
     setName('');
     setCalories('');
-    }
-
-    if(e.target.id == "clr-btn"){
-      //delete all
-      console.log("Clear Items");
-      StorageCtrl.clearItems();
     }
     
   }
@@ -180,6 +184,7 @@ function App() {
               {!editMode && <Button id="add-btn" variant="contained" onClick={handleSubmit}>Add Meal</Button>}
               {editMode && <Button id="edit-btn" variant="contained" onClick={handleSubmit}>Update Meal</Button>}
               {editMode && <Button id="delete-btn" variant="contained" onClick={handleSubmit}>Delete Meal</Button>}
+              {editMode && <Button id="back-btn" variant="contained" onClick={handleSubmit}>Back</Button>}
             </div>
           </form>
         </div>
