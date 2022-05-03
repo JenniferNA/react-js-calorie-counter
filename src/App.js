@@ -1,30 +1,69 @@
 import React, { useState,useEffect } from 'react';
+import EditIcon from '@mui/icons-material/Edit';
+import Button from "@mui/material/Button";
+import IconButton from "@mui/material/IconButton";
 import './App.css';
 
 function App() {
 
-  //set meals from localStorage or []
-  const [meals, setMeals] = useState(() => {
-    const localData = localStorage.getItem('meals');
-    return localData ? JSON.parse(localData) : [];
-  });
+  //storage controller
+  const StorageCtrl = (function () {
+    return {
+      storeMeals: function() {
+        localStorage.setItem("meals", JSON.stringify(meals));
+      },
+
+      storeItem: function () {
+        setMeals([...meals,{id:id,name:name,calories:calories}]);
+      },
+  
+      getItemsFromStorage: function () {
+        let items = localStorage.getItem('meals');
+        return items ? JSON.parse(items) : [];
+      },
+
+      getItemById: function (id) {
+        let items = JSON.parse(localStorage.getItem('meals'));
+        let item = items.find(i => {return i.id === id})
+        return item ? item : '';
+      },
+
+      updateItem: function () {
+        let items = JSON.parse(localStorage.getItem("meals"));
+        items.forEach(function (item) {
+          if (item.id === id) {
+            items.splice(item.id, 1, {id:id,name:name,calories:calories});
+          }
+        });
+        setMeals(items);
+      },
+ 
+      deleteItem: function () {
+        let items = JSON.parse(localStorage.getItem("meals"));
+        items.splice(id, 1);
+        let count = 0;
+
+        items.forEach(function (item) {
+          item.id = count++;
+        });
+        setMeals(items);
+        console.log(items);
+      },
+
+      clearItems: function () {
+        setMeals([]);
+      },
+
+    };
+  })();
+  
+  const [meals, setMeals] = useState(() => { return StorageCtrl.getItemsFromStorage(); });
+  const [id, setId] = useState(() => {return meals.length});
   const [name, setName] = useState('');
   const [calories, setCalories] = useState();
-  //set totalCalories from meals or 0
-  const [totalCalories, setTotalCalories] =useState(() => {
-    return countTotalCalories() ? countTotalCalories() : 0;
-  });
-
-  //currently only adding items
-  const handleSubmit = (e) => {
-    //dont refresh page
-    e.preventDefault();
-    setMeals([...meals,{id:meals.length+1,name:name,calories:calories}]);
-    
-    //clear inputs
-    setName('');
-    setCalories('');
-  }
+  const [totalCalories, setTotalCalories] = useState(() => { return countTotalCalories(); });
+  const [editMode, setEditMode] = useState(false);
+  
 
   function countTotalCalories(){
     let count = 0;
@@ -33,26 +72,88 @@ function App() {
     return count;
   }
 
-  //store meals to localstorage and update totalCalories when meals is altered  
+  const handleSubmit = (e) => {
+    //dont refresh page
+    e.preventDefault();
+
+    if(name && calories && calories !== NaN){
+      if(e.target.id == "add-btn"){
+        //add item
+        StorageCtrl.storeItem(); 
+      }
+      else if(e.target.id == "edit-btn"){
+        //update item
+        console.log("Edit Item"); 
+        StorageCtrl.updateItem(); 
+        toggleButtonPanel();
+      }
+      else if(e.target.id == "delete-btn"){
+        //delete item
+        console.log("Delete Item"); 
+        StorageCtrl.deleteItem();
+        toggleButtonPanel();
+      }
+
+    //clear inputs
+    setName('');
+    setCalories('');
+    }
+
+    if(e.target.id == "clr-btn"){
+      //delete all
+      console.log("Clear Items");
+      StorageCtrl.clearItems();
+    }
+    
+  }
+
+  function editMeal(id){
+    const meal = StorageCtrl.getItemById(id);
+    toggleButtonPanel();
+
+    setId(id);
+    setName(meal.name);
+    setCalories(meal.calories);
+  }
+
+  //generates a list that will update when meals is altered
+  class GenerateList extends React.Component {
+    constructor(props) {
+      super(props);
+    }
+    render(){
+      return(
+        meals.map((meal) => (
+          <li key={meal.id}>{meal.name}: {meal.calories} calories
+            <IconButton onClick={() => editMeal(meal.id)}>
+              <EditIcon/>
+            </IconButton>
+          </li>
+        ))
+      )
+    }
+  }
+
+  function toggleButtonPanel() {
+    setEditMode(prevState => !prevState);
+  }
+
+  //any time meals is altered
   useEffect(() => {
-    let storeMeals = () => localStorage.setItem("meals", JSON.stringify(meals));
+    //save meals to storage
+    StorageCtrl.storeMeals();
+    //update calories
     let updateCalories = (c) => setTotalCalories(countTotalCalories());
-
-    storeMeals();
     updateCalories();
+    //set current id
+    setId(meals.length);
   }, [meals]);
-
-
 
   return (
     <div className="App">
       <nav>
         <a>Calorie Counter</a>
-        <ul>
-          <li>
-            <a>Clear All</a>
-          </li>
-        </ul>
+        <Button id="clr-btn" variant="contained" onClick={handleSubmit}>Clear All</Button>
       </nav>
 
       <br/>
@@ -60,7 +161,7 @@ function App() {
       <div>
         <div>
           <span>Add Meal / Food Item</span>
-          <form onSubmit={handleSubmit}>
+          <form>
             <div>
               <div>
                 <input type="text" 
@@ -76,7 +177,9 @@ function App() {
                 value={calories} onChange={(e) => setCalories(parseInt(e.target.value))}/>
                 <label for="item-calories">Calories</label>
               </div>
-              <input type="submit"></input>
+              {!editMode && <Button id="add-btn" variant="contained" onClick={handleSubmit}>Add Meal</Button>}
+              {editMode && <Button id="edit-btn" variant="contained" onClick={handleSubmit}>Update Meal</Button>}
+              {editMode && <Button id="delete-btn" variant="contained" onClick={handleSubmit}>Delete Meal</Button>}
             </div>
           </form>
         </div>
@@ -86,11 +189,9 @@ function App() {
         </h3>
 
         <ul id="item-list">
-          {meals.map((meal) => (
-            <li key={meal.id}>{meal.name} {meal.calories}</li>
-          ))}
+          <GenerateList list={meals}></GenerateList>
         </ul>
-        
+            
       </div>
 
     </div>
