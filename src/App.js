@@ -10,17 +10,20 @@ import './App.css';
 
 function App() {
 
-  //storage controller
-  const StorageCtrl = (function () {
+  //data controller
+  const DataCtrl = (function () {
     return {
+      //saves meals to local storage
       storeMeals: function() {
         localStorage.setItem("meals", JSON.stringify(meals));
       },
 
+      //adds item to meals
       storeItem: function () {
         setMeals([...meals,{id:id,name:name,calories:calories}]);
       },
   
+      //gets meals from local storage
       getItemsFromStorage: function () {
         let items = localStorage.getItem('meals');
         return items ? JSON.parse(items) : [];
@@ -61,7 +64,7 @@ function App() {
     };
   })();
   
-  const [meals, setMeals] = useState(() => { return StorageCtrl.getItemsFromStorage(); });
+  const [meals, setMeals] = useState(() => { return DataCtrl.getItemsFromStorage(); });
   const [id, setId] = useState(() => {return meals.length});
   const [name, setName] = useState('');
   const [calories, setCalories] = useState();
@@ -76,6 +79,24 @@ function App() {
     return count;
   }
 
+  //handles UI changes when a meal is selected to be edited
+  function editMeal(id){
+    //get the 
+    const meal = DataCtrl.getItemById(id);
+    //makes edit buttons visible
+    toggleButtonPanel();
+
+    setId(id);
+    setName(meal.name);
+    setCalories(meal.calories);
+  }
+
+  //toggles whether the edit buttons are visible
+  function toggleButtonPanel() {
+    setEditMode(prevState => !prevState);
+  }
+
+
   const handleSubmit = (e) => {
     //dont refresh page
     e.preventDefault();
@@ -83,22 +104,22 @@ function App() {
     if(e.target.id == "clr-btn"){
       //delete all
       console.log("Clear Items");
-      StorageCtrl.clearItems();
+      DataCtrl.clearItems();
     }
 
     if(name && calories && calories !== NaN){
       if(e.target.id == "add-btn"){
         //add item
-        StorageCtrl.storeItem(); 
+        DataCtrl.storeItem(); 
       }
       else if(e.target.id == "edit-btn"){
         //update item
-        StorageCtrl.updateItem(); 
+        DataCtrl.updateItem(); 
         toggleButtonPanel();
       }
       else if(e.target.id == "delete-btn"){
         //delete item
-        StorageCtrl.deleteItem();
+        DataCtrl.deleteItem();
         toggleButtonPanel();
       }
       else if(e.target.id == "back-btn"){
@@ -113,15 +134,6 @@ function App() {
     setCalories('');
     }
     
-  }
-
-  function editMeal(id){
-    const meal = StorageCtrl.getItemById(id);
-    toggleButtonPanel();
-
-    setId(id);
-    setName(meal.name);
-    setCalories(meal.calories);
   }
 
   //generates a list that will update when meals is altered
@@ -146,14 +158,11 @@ function App() {
     }
   }
 
-  function toggleButtonPanel() {
-    setEditMode(prevState => !prevState);
-  }
-
+  
   //any time meals is altered
   useEffect(() => {
     //save meals to storage
-    StorageCtrl.storeMeals();
+    DataCtrl.storeMeals();
     //update calories
     let updateCalories = (c) => setTotalCalories(countTotalCalories());
     updateCalories();
@@ -169,7 +178,7 @@ function App() {
             <Typography variant="h4" component="div" sx={{ flexGrow: 1 }}>
               Calorie Counter
             </Typography>
-            <Button id="clr-btn" variant="contained"  component="div" onClick={handleSubmit}>Clear All</Button>
+            <Button id="clr-btn" variant="outlined" component="div" onClick={handleSubmit}>Clear All</Button>
           </Toolbar>
         </Box>
       </AppBar>
@@ -216,10 +225,10 @@ function App() {
               }
             }}>
               <Stack direction="row" spacing={1} className='edit-buttons-left'>
-                {editMode && <Button id="edit-btn" variant="contained" startIcon={<LibraryAddCheckIcon />} onClick={handleSubmit}>Update Meal</Button>}
-                {editMode && <Button id="delete-btn" variant="contained" startIcon={<DeleteOutlineIcon />} onClick={handleSubmit}>Delete Meal</Button>}
+                {editMode && <Button id="edit-btn" variant="sucsess" color="success" startIcon={<LibraryAddCheckIcon />} onClick={handleSubmit}>Update Meal</Button>}
+                {editMode && <Button id="delete-btn" variant="contained" color="error" startIcon={<DeleteOutlineIcon />} onClick={handleSubmit}>Delete Meal</Button>}
               </Stack>
-                {editMode && <Button id="back-btn" variant="contained" startIcon={<KeyboardArrowLeftIcon/>} onClick={handleSubmit}>Back</Button>}
+                {editMode && <Button id="back-btn" variant="contained" color="info" startIcon={<KeyboardArrowLeftIcon/>} onClick={handleSubmit}>Back</Button>}
             </Stack>
             </div>
           </Box>
