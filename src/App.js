@@ -1,7 +1,11 @@
 import React, { useState,useEffect } from 'react';
+import {Paper, Button, IconButton, AppBar, Grid, Stack, Toolbar, TextField, Typography, Divider} from '@mui/material/';
 import EditIcon from '@mui/icons-material/Edit';
-import Button from "@mui/material/Button";
-import IconButton from "@mui/material/IconButton";
+import AddIcon from '@mui/icons-material/Add';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import LibraryAddCheckIcon from '@mui/icons-material/LibraryAddCheck';
+import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
+import Box from '@mui/system/Box';
 import './App.css';
 
 function App() {
@@ -128,11 +132,15 @@ function App() {
     render(){
       return(
         meals.map((meal) => (
-          <li key={meal.id}>{meal.name}: {meal.calories} calories
-            <IconButton onClick={() => editMeal(meal.id)}>
-              <EditIcon/>
-            </IconButton>
-          </li>
+          <div>
+            <Stack direction="row" >
+              <li key={meal.id}><strong>{meal.name}:</strong> <em>{meal.calories} calories</em></li>
+                <IconButton id="edit-icon" onClick={() => editMeal(meal.id)}>
+                  <EditIcon/>
+                </IconButton>
+            </Stack>
+            <Divider light />
+          </div>
         ))
       )
     }
@@ -155,50 +163,78 @@ function App() {
 
   return (
     <div className="App">
-      <nav>
-        <a>Calorie Counter</a>
-        <Button id="clr-btn" variant="contained" onClick={handleSubmit}>Clear All</Button>
-      </nav>
-
+      <AppBar position="static">
+        <Box sx={{ flexGrow: 1 }}>
+          <Toolbar>
+            <Typography variant="h4" component="div" sx={{ flexGrow: 1 }}>
+              Calorie Counter
+            </Typography>
+            <Button id="clr-btn" variant="contained"  component="div" onClick={handleSubmit}>Clear All</Button>
+          </Toolbar>
+        </Box>
+      </AppBar>
       <br/>
-
-      <div>
-        <div>
-          <span>Add Meal / Food Item</span>
-          <form>
-            <div>
-              <div>
-                <input type="text" 
+      <Box className='main'>
+      <Paper className='item-form'>
+        <Stack spacing={2}>
+          <Typography variant="h5">
+            Add Meal / Food Item
+          </Typography>
+          <Grid container justifyContent="space-evenly"> 
+            <Grid item md={6} xs={6}
+            sx={{ pr:".5em" }}>
+              <TextField
+                required fullWidth
+                label="Meal"
                 placeholder="Add Item" 
-                id="item-name" 
-                value={name} onChange={(e) => setName(e.target.value)}/>
-                <label for="item-name">Meal</label>
-              </div>
-              <div>
-                <input type="number"  
-                placeholder="Add Calories"  
-                id="item-calories" 
-                value={calories} onChange={(e) => setCalories(parseInt(e.target.value))}/>
-                <label for="item-calories">Calories</label>
-              </div>
-              {!editMode && <Button id="add-btn" variant="contained" onClick={handleSubmit}>Add Meal</Button>}
-              {editMode && <Button id="edit-btn" variant="contained" onClick={handleSubmit}>Update Meal</Button>}
-              {editMode && <Button id="delete-btn" variant="contained" onClick={handleSubmit}>Delete Meal</Button>}
-              {editMode && <Button id="back-btn" variant="contained" onClick={handleSubmit}>Back</Button>}
+                value={name} onChange={(e) => setName(e.target.value)}
+              />
+            </Grid>
+            <Grid item md={6} xs={6}
+            sx={{ pl:".5em" }}>
+              <TextField 
+                required fullWidth 
+                label="Calories"
+                type="number"
+                placeholder="Add Calories"
+                value={calories} onChange={(e) => setCalories(parseInt(e.target.value))}
+              />
+            </Grid>
+          </Grid>
+          <Box>
+            <div>
+              {!editMode && <Button id="add-btn" variant="contained" startIcon={<AddIcon />} onClick={handleSubmit}>Add Meal</Button>}
             </div>
-          </form>
-        </div>
+            <div>
+            <Stack direction="row"
+            sx={{
+              fontSize: {
+                lg: "1em",
+                md: "1em",
+                sm: ".80em",
+                xs: ".80em"
+              }
+            }}>
+              <Stack direction="row" spacing={1} className='edit-buttons-left'>
+                {editMode && <Button id="edit-btn" variant="contained" startIcon={<LibraryAddCheckIcon />} onClick={handleSubmit}>Update Meal</Button>}
+                {editMode && <Button id="delete-btn" variant="contained" startIcon={<DeleteOutlineIcon />} onClick={handleSubmit}>Delete Meal</Button>}
+              </Stack>
+                {editMode && <Button id="back-btn" variant="contained" startIcon={<KeyboardArrowLeftIcon/>} onClick={handleSubmit}>Back</Button>}
+            </Stack>
+            </div>
+          </Box>
+         
+        </Stack>
+      </Paper>
 
-        <h3 class="center-align">
-          Total Calories: {totalCalories}
-        </h3>
+      <h3 class="total-cal">
+        Total Calories: {totalCalories}
+      </h3>
 
-        <ul id="item-list">
-          <GenerateList list={meals}></GenerateList>
-        </ul>
-            
-      </div>
-
+      <ul id="item-list">
+        <GenerateList list={meals}></GenerateList>
+      </ul>
+      </Box>
     </div>
   );
 }
