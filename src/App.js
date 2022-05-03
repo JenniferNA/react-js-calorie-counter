@@ -85,10 +85,10 @@ function App() {
     const meal = DataCtrl.getItemById(id);
     //makes edit buttons visible
     toggleButtonPanel();
-
+    
     setId(id);
     setName(meal.name);
-    setCalories(meal.calories);
+    setCalories(parseInt(meal.calories));
   }
 
   //toggles whether the edit buttons are visible
@@ -147,9 +147,9 @@ function App() {
           <div>
             <Stack direction="row" >
               <li key={meal.id}><strong>{meal.name}:</strong> <em>{meal.calories} calories</em></li>
-                <IconButton id="edit-icon" onClick={() => editMeal(meal.id)}>
+                {!editMode &&<IconButton id="edit-icon" onClick={() => editMeal(meal.id)}>
                   <EditIcon/>
-                </IconButton>
+                </IconButton>}
             </Stack>
             <Divider light />
           </div>
@@ -178,13 +178,13 @@ function App() {
             <Typography variant="h4" component="div" sx={{ flexGrow: 1 }}>
               Calorie Counter
             </Typography>
-            <Button id="clr-btn" variant="outlined" component="div" onClick={handleSubmit}>Clear All</Button>
+            <Button id="clr-btn" variant="contained" color="primary" component="div" onClick={handleSubmit}>Clear All</Button>
           </Toolbar>
         </Box>
       </AppBar>
       <br/>
       <Box className='main'>
-      <Paper className='item-form'>
+      <Paper className='item-form' elevation={2}>
         <Stack spacing={2}>
           <Typography variant="h5">
             Add Meal / Food Item
@@ -201,7 +201,7 @@ function App() {
             </Grid>
             <Grid item md={6} xs={6}
             sx={{ pl:".5em" }}>
-              <TextField 
+              <TextField
                 required fullWidth 
                 label="Calories"
                 type="number"
@@ -225,10 +225,10 @@ function App() {
               }
             }}>
               <Stack direction="row" spacing={1} className='edit-buttons-left'>
-                {editMode && <Button id="edit-btn" variant="sucsess" color="success" startIcon={<LibraryAddCheckIcon />} onClick={handleSubmit}>Update Meal</Button>}
+                {editMode && <Button id="edit-btn" variant="contained" color="warning" startIcon={<LibraryAddCheckIcon />} onClick={handleSubmit}>Update Meal</Button>}
                 {editMode && <Button id="delete-btn" variant="contained" color="error" startIcon={<DeleteOutlineIcon />} onClick={handleSubmit}>Delete Meal</Button>}
               </Stack>
-                {editMode && <Button id="back-btn" variant="contained" color="info" startIcon={<KeyboardArrowLeftIcon/>} onClick={handleSubmit}>Back</Button>}
+                {editMode && <Button id="back-btn" variant="contained" color="primary" startIcon={<KeyboardArrowLeftIcon/>} onClick={handleSubmit}>Back</Button>}
             </Stack>
             </div>
           </Box>
