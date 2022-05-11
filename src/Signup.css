@@ -1,0 +1,9 @@
+.signup-form{
+    margin-left:  clamp(100px, 35vw, 1000px);
+    margin-right: clamp(100px, 35vw, 1000px);
+    margin-top: 5vh;
+}
+.signup-form{
+    width: 30vw;
+    padding: 1em;
+}
