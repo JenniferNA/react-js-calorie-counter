@@ -24,7 +24,7 @@ jobs:
           rm -rf build
           npm build
       - name: Deploy
-        uses: JenniferNA/react-js-calorie-counter@releases/v3
+        uses: JamesIves/github-pages-deploy-action@releases/v3
         with:
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
           BRANCH: gh-pages
