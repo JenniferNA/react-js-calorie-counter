@@ -6,13 +6,24 @@ name: DeployGithubPages
 on:  
   push:
     branches: [ main ]
-env:
-  FLY_API_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+    
 jobs:
   deploy:
-      name: Deploy app
       runs-on: ubuntu-latest
       steps:
-        - uses: actions/checkout@v2
-        - uses: superfly/flyctl-actions/setup-flyctl@master
-        - run: flyctl deploy --remote-only
+        - name: Checkout
+          uses: actions/checkout@v2
+        - name: Set-up Node
+          uses: actions/setup-node@v1
+          with:
+            node-version: "10.x"
+        - run: npm install
+        - run: npm run build
+        - run: npm test
+        - name: Deploy
+          uses: crazy-max/ghaction-github-pages@v1
+          with:
+            target_branch: gh-pages
+            build_dir: build
+          env:
+            GITHUB_TOKEN: ${{ secrets.AUTH_TOKEN }}
