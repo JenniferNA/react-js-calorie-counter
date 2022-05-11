@@ -11,14 +11,19 @@ jobs:
   deploy:
       runs-on: ubuntu-latest
       steps:
+          #check out repository so workflow can access it
         - name: Checkout
           uses: actions/checkout@v2
+          #downloads Node.js v16.x
         - name: Set-up Node
           uses: actions/setup-node@v1
           with:
             node-version: "16.x"
+          #installs all the neccesary dependencies
         - run: npm install
+          #generates build
         - run: npm run build
+          #uses ghaction-github-pages repo to deploy the built application
         - name: Deploy
           uses: crazy-max/ghaction-github-pages@v1
           with:
